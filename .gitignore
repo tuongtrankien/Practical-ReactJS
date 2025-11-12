@@ -1,0 +1,27 @@
+# Build artifacts
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/
+
+# Visual Studio
+.vs/
+
+# Logs
+*.log
+
+# Secrets
+# appsettings.*.json
+
+# Others
+TestResults/
