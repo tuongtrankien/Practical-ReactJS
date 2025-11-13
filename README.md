@@ -4,7 +4,6 @@ SimpleAPI - .NET Web API version 8
 + Authentication & Authorization JWT with ASP.NET Identity
 + Implement code first approach for create entities with EF Core
 + Implement CQRS Product + Category
-+ Implement validation using FluentValidation
 + Implement validation using FluentValidation ( not done )
 + Implement store imageUrl for product using Azure Blob Storage ( not done )
 
@@ -14,4 +13,4 @@ SimpleWebApp
 + Define routes for pages
 + Implement LoginPage component & integrate SimpleAPI get accessToken
 + Set token into header using http request interceptors
-+ Implement ProductPage component & integrate SimpleAPI get list products
++ Implement ProductPage component & integrate SimpleAPI get list products ( not done )
