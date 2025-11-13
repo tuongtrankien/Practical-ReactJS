@@ -5,7 +5,7 @@ SimpleAPI - .NET Web API version 8
 + Implement code first approach for create entities with EF Core
 + Implement CQRS Product + Category
 + Implement validation using FluentValidation ( not done )
-+ Implement store imageUrl for product using Azure Blob Storage ( not done )
++ Implement store imageUrl for product using Azure Blob Storage
 
 SimpleWebApp
 + Setup & installation MaterialUI for design components (W1)
