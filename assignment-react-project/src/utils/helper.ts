@@ -13,3 +13,17 @@ export const parseJwt = (token: string) => {
     return { email: "", roles: [] };
   }
 };
+
+export const isTokenExpired = (token: string): boolean => {
+  try {
+    const decoded: { exp?: number } = jwtDecode(token);
+
+    if (!decoded.exp || typeof decoded.exp !== 'number') {
+      return true;
+    }
+
+    return Date.now() >= decoded.exp * 1000;
+  } catch (e) {
+    return true;
+  }
+}

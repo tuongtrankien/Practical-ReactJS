@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using SimpleApp.Application.Common.Models;
 using SimpleApp.Application.Interfaces;
 using SimpleApp.Infrastructure.Data;
 
@@ -17,10 +19,38 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await _dbSet.ToListAsync();
+        return await _dbSet.AsNoTracking().ToListAsync();
     }
 
-    public async Task<T?> GetByIdAsync(int id)
+    public async Task<IEnumerable<TResult>> GetAllAsync<TResult>(Expression<Func<T, TResult>> selector)
+    {
+        return await _dbSet.AsNoTracking().Select(selector).ToListAsync();
+    }
+
+    public async Task<PaginatedResult<TResult>> GetPagedAsync<TResult>(
+        Expression<Func<T, bool>>? filter,
+        Expression<Func<T, TResult>> selector,
+        int pageNumber,
+        int pageSize)
+    {
+        var query = _dbSet.AsNoTracking().AsQueryable();
+
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+
+        var totalItems = await query.CountAsync();
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(selector)
+            .ToListAsync();
+
+        return new PaginatedResult<TResult>(items, totalItems, pageNumber, pageSize);
+    }
+
+    public async Task<T?> GetByIdAsync(Guid id)
     {
         return await _dbSet.FindAsync(id);
     }
@@ -30,14 +60,19 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         await _dbSet.AddAsync(entity);
     }
 
-    public async Task Update(T entity)
+    public Task Update(T entity)
     {
         _dbSet.Update(entity);
+        return Task.CompletedTask;
     }
 
-    public async Task Delete(T entity)
+    public async Task Delete(Guid id)
     {
-        _dbSet.Remove(entity);
+        var entity = await GetByIdAsync(id);
+        if (entity != null)
+        {
+            _dbSet.Remove(entity);
+        }
     }
 
     public async Task SaveChangesAsync()

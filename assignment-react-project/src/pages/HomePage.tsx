@@ -1,5 +1,3 @@
-import ResponsiveAppBar from "../components/ResponsiveAppBar";
-
 const HomePage = () => {
     return (
         <div>
