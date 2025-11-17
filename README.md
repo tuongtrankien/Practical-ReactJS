@@ -14,3 +14,4 @@ SimpleWebApp
 + Implement LoginPage component & integrate SimpleAPI get accessToken
 + Set token into header using http request interceptors
 + Implement ProductPage component & integrate SimpleAPI get list products ( not done )
++ Validation form input using React Hook Form or Formik
