@@ -5,17 +5,19 @@ using Microsoft.Extensions.DependencyInjection;
 using SimpleApp.Application.Interfaces;
 using SimpleApp.Domain.Entities;
 using SimpleApp.Infrastructure.Data;
+using SimpleApp.Infrastructure.Repositories;
+using SimpleApp.Infrastructure.Services;
 
 namespace SimpleApp.Infrastructure;
 
-public static class RegisterService
+public static class ConfigureService
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddIdentity<User, IdentityRole>(opt =>
+        services.AddIdentityCore<User>(opt =>
         {
             opt.User.RequireUniqueEmail = true;
             opt.Password.RequireDigit = false;
@@ -24,10 +26,16 @@ public static class RegisterService
             opt.Password.RequireNonAlphanumeric = false;
             opt.Password.RequiredUniqueChars = 0;
             opt.Password.RequiredLength = 6;
-        }).AddEntityFrameworkStores<ApplicationDbContext>()
+        })
+        .AddRoles<IdentityRole>()
+        .AddSignInManager<SignInManager<User>>()
+        .AddRoleManager<RoleManager<IdentityRole>>()
+        .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
-        services.AddScoped<ITokenService, Services.TokenService>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
         return services;
     }
