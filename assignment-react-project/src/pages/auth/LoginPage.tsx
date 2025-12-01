@@ -1,12 +1,12 @@
 import React, { FormEvent, useState } from "react";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../../auth/AuthContext";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { api } from "../api/axios";
+import { api } from "../../api/axios";
 
 const LoginPage = () => {
   const { login } = useAuth();

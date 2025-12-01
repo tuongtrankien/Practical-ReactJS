@@ -23,4 +23,18 @@ public class BlobStorageService : IBlobStorageService
         await blobClient.UploadAsync(imageStream, true);
         return blobClient.Uri.ToString();
     }
+
+    public async Task DeleteImageAsync(string blobName)
+    {
+        try
+        {
+            var blobClient = _containerClient.GetBlobClient(blobName);
+            await blobClient.DeleteAsync();
+        }
+        catch (Exception ex)
+        {
+            // Log the exception - blob may not exist or other Azure errors
+            Console.WriteLine($"Error deleting blob {blobName}: {ex.Message}");
+        }
+    }
 }
