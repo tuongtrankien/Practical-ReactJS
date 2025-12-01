@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
-import LoginPage from "../pages/LoginPage";
+import LoginPage from "../pages/auth/LoginPage";
 import { ProtectedRoute } from "../auth/ProtectedRoute";
 import HomePage from "../pages/HomePage";
-import ProductPage from "../pages/ProductPage";
+import ProductPage from "../pages/product/ProductPage";
 
 const AppRoutes = () => {
   return (

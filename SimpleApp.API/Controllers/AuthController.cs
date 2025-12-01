@@ -5,6 +5,9 @@ using SimpleApp.Application.DTOs.Auth;
 using SimpleApp.Application.Interfaces;
 using SimpleApp.Domain.Entities;
 
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 namespace SimpleApp.API.Controllers;
 
 [ApiController]
@@ -57,6 +60,45 @@ public class AuthController : ControllerBase
         if (!signIn.Succeeded) return Unauthorized();
 
         var (token, exp) = await _tokenService.CreateAccessTokenAsync(user);
-        return Ok(new { accessToken = token, expiresAtUtc = exp });
+
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.None,
+            Secure = true,
+            Expires = exp.ToUniversalTime()
+        };
+
+        Response.Cookies.Append("jwt", token, cookieOptions);
+
+        // Do not return token in the response body when storing it in an HTTP-only cookie.
+        return Ok(new { expiresAtUtc = exp });
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        // Delete the cookie on logout. Ensure options match how it was created.
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.None,
+            Secure = true
+        };
+
+        Response.Cookies.Delete("jwt", cookieOptions);
+        return Ok();
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> Me()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        return Ok(new { email = user.Email, roles = roles });
     }
 }

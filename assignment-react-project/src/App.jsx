@@ -8,7 +8,7 @@ import '@fontsource/roboto/700.css';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import AppRoutes from './routes/AppRoutes';
-import ResponsiveAppBar from './components/ResponsiveAppBar';
+import ResponsiveAppBar from './components/header/ResponsiveAppBar';
 
 function App() {
   return (

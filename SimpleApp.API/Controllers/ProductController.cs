@@ -50,7 +50,7 @@ public class ProductController : ControllerBase
         var result = await _mediator.Send(command);
         if (result)
         {
-            return Ok();
+            return Ok(result);
         }
         return BadRequest();
     }

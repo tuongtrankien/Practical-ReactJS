@@ -28,12 +28,15 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
     
     public async Task<bool> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
+        string uploadedBlobName = string.Empty;
         try
         {
             var imageUrl = string.Empty;
             if (request.ImageStream != null && !string.IsNullOrEmpty(request.ImageFileName))
             {
-                imageUrl =  await _blobStorageService.UploadImageAsync(request.ImageStream, request.ImageFileName);
+                imageUrl = await _blobStorageService.UploadImageAsync(request.ImageStream, request.ImageFileName);
+                // Extract blob name from URL for cleanup on error
+                uploadedBlobName = imageUrl.Split('/').Last();
             }
 
             var product = new Product
@@ -58,6 +61,13 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
         {
             // Log the exception (you can use any logging framework you prefer)
             Console.WriteLine($"Error creating product: {ex.Message}");
+            
+            // Delete the uploaded image if an error occurred during product creation
+            if (!string.IsNullOrEmpty(uploadedBlobName))
+            {
+                await _blobStorageService.DeleteImageAsync(uploadedBlobName);
+            }
+            
             return false;
         }        
     }

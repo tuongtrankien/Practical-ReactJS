@@ -27,7 +27,38 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromSeconds(30)
         };
+    })
+    .AddCookie(o =>
+    {
+        // Configure cookie policy used by cookie middleware. The JWT cookie we set manually
+        // should be HttpOnly, SameSite=None (for cross-site requests) and Secure in production.
+        o.Cookie.SameSite = SameSiteMode.None;
+        o.Cookie.HttpOnly = true;
+        o.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
     });
+
+// When using JWT stored in a cookie, also try to read token from cookie if Authorization header is not provided.
+builder.Services.PostConfigure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    var originalEvents = options.Events ?? new JwtBearerEvents();
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (string.IsNullOrEmpty(context.Token))
+            {
+                if (context.Request.Cookies.TryGetValue("jwt", out var cookieToken))
+                {
+                    context.Token = cookieToken;
+                }
+            }
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = originalEvents.OnAuthenticationFailed,
+        OnChallenge = originalEvents.OnChallenge,
+        OnTokenValidated = originalEvents.OnTokenValidated
+    };
+});
 
 builder.Services.AddAuthorization(opt =>
 {
